@@ -2,37 +2,44 @@
 
 .. currentmodule:: {{ module }}
 
+{% if objname == "ArrayBase" %}
+.. autodata:: {{ objname }}
+{% elif objname == "nbscreenshot" %}
+.. autoclass:: napari.utils.notebook_display.NotebookScreenshot
+   :members:
+   :show-inheritance:
+{% else %}
+{% set visible_methods = methods | public_members -%}
+{% set visible_attributes = attributes | autosummary_attributes(name, module) -%}
 .. autoclass:: {{ objname }}
    :members:
    :show-inheritance:
    {#- These classes inherit docstrings from the raw qt source, which generates rst syntax errors when building the docs #}
-   {% if objname not in ["progress", "cancelable_progress"] -%}
+{%- if objname not in ["progress", "cancelable_progress"] %}
    :inherited-members:
-   {%- endif %}
+{%- endif %}
+{%- block methods %}
+{%- if visible_methods %}
 
-   {% block methods %}
-
-   {% if methods %}
    .. rubric:: {{ _('Methods') }}
 
    .. autosummary::
-   {% for item in methods %}
-   {% if not item.startswith('_') %}
+{%- for item in visible_methods %}
       ~{{ name }}.{{ item }}
-   {% endif %}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+{%- endfor %}
+{%- endif %}
+{%- endblock %}
+{%- block attributes %}
+{%- if visible_attributes %}
 
-   {% block attributes %}
-   {% if attributes %}
    .. rubric:: {{ _('Attributes') }}
 
    .. autosummary::
-   {% for item in attributes %}
-      {{ item|get_attributes(name, module) }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+{%- for item in visible_attributes %}
+      {{ item }}
+{%- endfor %}
+{%- endif %}
+{%- endblock %}
 
    .. rubric:: {{ _('Details') }}
+{% endif %}
