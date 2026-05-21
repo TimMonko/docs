@@ -13,6 +13,7 @@ import logging
 import json
 import os
 import re
+import warnings
 from datetime import datetime
 from importlib import import_module
 from importlib.metadata import distribution, version as metadata_version
@@ -24,6 +25,10 @@ from jinja2.filters import FILTERS
 from napari._version import __version_tuple__
 from packaging.version import parse as parse_version
 from pygments.lexers.configs import TOMLLexer
+try:
+    from sphinx.deprecation import RemovedInSphinx11Warning
+except ImportError:  # pragma: no cover
+    RemovedInSphinx11Warning = None
 from sphinx.highlighting import lexers
 from sphinx.util import logging as sphinx_logging
 from sphinx_gallery import gen_rst, scrapers
@@ -31,6 +36,40 @@ from sphinx_gallery.sorting import ExampleTitleSortKey
 import pooch.core
 
 from napari.utils._examples_data import napari_choose_downloader
+
+if RemovedInSphinx11Warning is not None:
+    # These warnings come from third-party extensions that still access Sphinx's
+    # deprecated `.app` attribute under Sphinx 9. Keep first-party warnings visible.
+    warnings.filterwarnings(
+        'ignore',
+        message=r".*InsertToctrees\.app.*",
+        category=RemovedInSphinx11Warning,
+        module=r'sphinx_external_toc\.events',
+    )
+    warnings.filterwarnings(
+        'ignore',
+        message=r".*BuildEnvironment\.app.*",
+        category=RemovedInSphinx11Warning,
+        module=r'myst_parser\.mocking',
+    )
+    warnings.filterwarnings(
+        'ignore',
+        message=r".*BuildEnvironment\.app.*",
+        category=RemovedInSphinx11Warning,
+        module=r'sphinx_tags(?:\.__init__)?',
+    )
+    warnings.filterwarnings(
+        'ignore',
+        message=r'.*mapping interface for autodoc options objects is deprecated.*',
+        category=RemovedInSphinx11Warning,
+        module=r'sphinx\.ext\.napoleon\.docstring',
+    )
+    warnings.filterwarnings(
+        'ignore',
+        message=r".*MystReferenceResolver\.app.*",
+        category=RemovedInSphinx11Warning,
+        module=r'myst_parser\.sphinx_ext\.myst_refs',
+    )
 
 # -- Version information ---------------------------------------------------
 
@@ -327,7 +366,23 @@ def get_attributes(item, obj, modulename):
     return ''
 
 
+def public_members(items):
+    """Return only documented public members for autosummary templates."""
+    return [item for item in items if not item.startswith('_')]
+
+
+def autosummary_attributes(items, obj, modulename):
+    """Resolve autosummary attribute entries and drop unresolved blanks."""
+    return [
+        rendered
+        for item in items
+        if (rendered := get_attributes(item, obj, modulename))
+    ]
+
+
 FILTERS['get_attributes'] = get_attributes
+FILTERS['public_members'] = public_members
+FILTERS['autosummary_attributes'] = autosummary_attributes
 
 
 class FilterSphinxWarnings(logging.Filter):
@@ -349,7 +404,10 @@ class FilterSphinxWarnings(logging.Filter):
 
         filter_out = ('duplicate object description',)
 
-        return not msg.strip().startswith(filter_out)
+        if msg.strip().startswith(filter_out):
+            return False
+
+        return True
 
 
 # -- Examples gallery -------------------------------------------------------
