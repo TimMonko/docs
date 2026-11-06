@@ -241,8 +241,14 @@ external_toc_path = '_toc.yml'
 external_toc_exclude_missing = False
 lexers['toml'] = TOMLLexer(startinline=True)
 napoleon_custom_sections = [('Events', 'params_style')]
-# use an env var to control whether noteboos are executed
-nb_execution_mode = os.environ.get('NB_EXECUTION_MODE', 'auto')
+# Notebooks are executed through jupyter-cache, so a notebook whose code cells
+# haven't changed reuses its outputs from the last build instead of running
+# again. Set NB_EXECUTION_MODE to override (the slim targets use `off`;
+# `force` re-executes everything).
+nb_execution_mode = os.environ.get('NB_EXECUTION_MODE', 'cache')
+# Keep the cache outside _build so `make clean` doesn't wipe it.
+# `make clean-cache` (or `make clean-full`) deletes it.
+nb_execution_cache_path = str(Path(__file__).parent / '.jupyter_cache')
 nb_output_stderr = 'show'
 mermaid_d3_zoom = True
 mermaid_version = '11.4.1'
