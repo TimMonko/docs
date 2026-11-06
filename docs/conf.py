@@ -612,6 +612,7 @@ sphinx_gallery_conf = {
         napari_scraper,
     ),
     'reset_modules': (reset_napari,),
+    'reset_modules_order': 'both',
     'reference_url': {'napari': None},
     'within_subsection_order': ExampleTitleSortKey,
 }
