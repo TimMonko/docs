@@ -30,6 +30,7 @@ default = { features = ["remote-napari", "base"] }
 clean = "make clean"
 clean-gallery = "make clean-gallery"
 clean-prep = "make clean-prep"
+clean-cache = "make clean-cache"
 clean-full = "make clean-full"
 
 # Preparation tasks

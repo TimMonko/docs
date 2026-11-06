@@ -1,4 +1,4 @@
-.PHONY: clean clean-gallery clean-prep clean-full spellcheck
+.PHONY: clean clean-gallery clean-prep clean-cache clean-full spellcheck
 
 SPHINXOPTS =
 
@@ -62,7 +62,15 @@ else
 	rm -rf $(docs_dir)/_tags
 endif
 
-clean-full: clean-prep clean-gallery
+# delete the cache of executed notebooks (see nb_execution_cache_path in conf.py)
+clean-cache:
+ifeq ($(OS),Windows_NT)
+	@python -c "import shutil; shutil.rmtree('$(docs_dir)/.jupyter_cache', ignore_errors=True)"
+else
+	rm -rf $(docs_dir)/.jupyter_cache
+endif
+
+clean-full: clean-prep clean-gallery clean-cache
 
 prep-docs:
 	python $(docs_dir)/_scripts/prep_docs.py

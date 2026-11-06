@@ -597,6 +597,14 @@ The first run will be a full build of that target; subsequent rebuilds only proc
   Running this is a good idea if you have not built the documentation in a long
   time and there may have been significant changes to the `napari` examples.
 
+- Executed notebooks are cached in `docs/.jupyter_cache`, so a notebook only
+  runs again when its code cells change. `pixi run clean` keeps this cache. To
+  re-run every notebook, for example to pick up changes in napari itself, use:
+
+  ```bash
+  pixi run clean-cache
+  ```
+
 - To generate the source files from the napari repository, including the
 [UI architecture diagrams](ui-sections), [events reference](events-reference),
 and [preferences](napari-preferences), you can run:
