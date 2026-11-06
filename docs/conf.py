@@ -45,7 +45,7 @@ from napari.utils._examples_data import napari_choose_downloader
 # Make docs/ importable, so helpers in _scripts can be imported (Sphinx only
 # changes the working directory while reading conf.py).
 sys.path.insert(0, str(Path(__file__).parent))
-from _scripts.gallery_scraper import napari_scraper, reset_napari  # noqa: E402
+from _scripts.gallery_scraper import GALLERY_EXECUTION_CONF  # noqa: E402
 
 # -- Detect build on CI PR ----------------------------------------------------
 
@@ -596,23 +596,15 @@ gen_rst.EXAMPLE_HEADER = """
 """
 
 sphinx_gallery_conf = {
+    **GALLERY_EXECUTION_CONF,
     # path to your example scripts (this value is set in the Makefile)
     # 'examples_dirs': '../../napari/examples',
     'gallery_dirs': 'gallery',  # path to where to save gallery generated output
     'filename_pattern': '/*.py',
-    'ignore_pattern': 'README.rst|/*_.py',
     'default_thumb_file': Path(__file__).parent / '_static' / 'images' / 'logo.svg',
     'plot_gallery': "'True'",  # https://github.com/sphinx-gallery/sphinx-gallery/pull/304/files
     'download_all_examples': False,
     'min_reported_time': 10,
-    'only_warn_on_example_error': False,
-    'abort_on_example_error': True,
-    'image_scrapers': (
-        'matplotlib',
-        napari_scraper,
-    ),
-    'reset_modules': (reset_napari,),
-    'reset_modules_order': 'both',
     'reference_url': {'napari': None},
     'within_subsection_order': ExampleTitleSortKey,
 }

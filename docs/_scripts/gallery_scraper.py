@@ -66,3 +66,16 @@ def napari_scraper(block, block_vars, gallery_conf):
         img_paths.append(img_path)
 
     return scrapers.figure_rst(img_paths, gallery_conf['src_dir'])
+
+
+# Settings that decide how examples run and are screenshotted. Shared by
+# docs/conf.py and gallery_preview/conf.py, so the preview build cannot drift
+# from the real one; each conf only adds its own paths and page options.
+GALLERY_EXECUTION_CONF = {
+    'ignore_pattern': 'README.rst|/*_.py',
+    'image_scrapers': ('matplotlib', napari_scraper),
+    'reset_modules': (reset_napari,),
+    'reset_modules_order': 'both',
+    'only_warn_on_example_error': False,
+    'abort_on_example_error': True,
+}
