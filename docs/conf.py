@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import re
+import sys
 import tomllib
 from datetime import datetime
 from functools import cache
@@ -35,11 +36,16 @@ from packaging.version import parse as parse_version
 from pygments.lexers.configs import TOMLLexer
 from sphinx.highlighting import lexers
 from sphinx.util import logging as sphinx_logging
-from sphinx_gallery import gen_rst, scrapers
+from sphinx_gallery import gen_rst
 from sphinx_gallery.sorting import ExampleTitleSortKey
 import pooch.core
 
 from napari.utils._examples_data import napari_choose_downloader
+
+# Make docs/ importable, so helpers in _scripts can be imported (Sphinx only
+# changes the working directory while reading conf.py).
+sys.path.insert(0, str(Path(__file__).parent))
+from _scripts.gallery_scraper import napari_scraper, reset_napari  # noqa: E402
 
 # -- Detect build on CI PR ----------------------------------------------------
 
@@ -393,47 +399,6 @@ class FilterSphinxWarnings(logging.Filter):
 
 
 # -- Examples gallery -------------------------------------------------------
-
-
-def reset_napari(gallery_conf, fname):
-    from napari.settings import get_settings
-    from qtpy.QtWidgets import QApplication
-
-    settings = get_settings()
-    settings.appearance.theme = 'dark'
-
-    # Disabling `QApplication.exec` means example scripts can call `exec`
-    # (scripts work when run normally) without blocking example execution by
-    # sphinx-gallery. (from qtgallery)
-    QApplication.exec = lambda _: None
-
-
-def napari_scraper(block, block_vars, gallery_conf):
-    """Basic napari window scraper.
-
-    Looks for any QtMainWindow instances and takes a screenshot of them.
-
-    `app.processEvents()` allows Qt events to propagateo and prevents hanging.
-    """
-    imgpath_iter = block_vars['image_path_iterator']
-
-    if app := napari.qt.get_qapp():
-        app.processEvents()
-    else:
-        return ''
-
-    img_paths = []
-    for win, img_path in zip(
-        reversed(napari._qt.qt_main_window._QtMainWindow._instances),
-        imgpath_iter,
-    ):
-        img_paths.append(img_path)
-        win._window.screenshot(img_path, canvas_only=False)
-
-    napari.Viewer.close_all()
-    app.processEvents()
-
-    return scrapers.figure_rst(img_paths, gallery_conf['src_dir'])
 
 
 GALLERY_SOURCE_PATH_RE = re.compile(r'\.\. "(.+\.py)"\n')
