@@ -649,6 +649,10 @@ sphinx_gallery_conf = {
     'reset_modules': (reset_napari,),
     'reference_url': {'napari': None},
     'within_subsection_order': ExampleTitleSortKey,
+    # Number of worker processes for running examples; 0 or 1 runs them in
+    # this process. Examples that can't run alongside others can opt out with
+    # `# sphinx_gallery_parallel = False`.
+    'parallel': int(os.environ.get('SPHINX_GALLERY_PARALLEL', '0')),
 }
 
 # -- Calendar ---------------------------------------------------------------

@@ -852,6 +852,12 @@ make slimgallery-live
 ```
 These builds will build the documentation with the entire gallery. The [`-live`
 variant](live-builds) will will open a browser preview and auto-rebuild any pages you edit.
+
+To run the gallery examples in several processes at once, set
+`SPHINX_GALLERY_PARALLEL` to the number of processes, for example
+`SPHINX_GALLERY_PARALLEL=8 make slimgallery`. This also works for the other
+targets that build the gallery, such as `html`. Each process opens its own
+napari windows.
 ````
 
 ````{dropdown} napari/docs and a single example in the gallery
