@@ -57,3 +57,14 @@ slimgallery-live = "make slimgallery-live"
 # Utility tasks
 linkcheck-files = "make linkcheck-files"
 spellcheck = "make spellcheck"
+
+# Build only the gallery examples matching <example> (a regex), with no other
+# docs. Open gallery_preview/_build/index.html to see the result.
+# e.g. pixi run gallery-example vortex
+#      pixi run gallery-example vortex ../napari-my-worktree/examples
+[tasks.gallery-example]
+args = [
+  "example",
+  { arg = "examples_dir", default = "../napari/examples" },
+]
+cmd = """rm -rf gallery_preview/gallery gallery_preview/_build && GALLERY_EXAMPLE='{{ example }}' GALLERY_EXAMPLES_DIR='{{ examples_dir }}' NAPARI_CONFIG='' NAPARI_APPLICATION_IPY_INTERACTIVE=0 python -m sphinx -b html gallery_preview gallery_preview/_build"""

@@ -171,3 +171,8 @@ docs/_scripts/data/
 .pixi/*
 !.pixi/config.toml
 pixi.lock
+
+# gallery-example preview build output
+gallery_preview/gallery/
+gallery_preview/_build/
+gallery_preview/sg_execution_times.rst

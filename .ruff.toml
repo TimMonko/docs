@@ -2,6 +2,7 @@ fix = true
 
 exclude = [
     "docs/conf.py",
+    "gallery_preview/conf.py",
     "docs/_scripts/*.py",
     "docs/naps/*.md",
 ]
