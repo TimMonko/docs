@@ -243,6 +243,11 @@ lexers['toml'] = TOMLLexer(startinline=True)
 napoleon_custom_sections = [('Events', 'params_style')]
 # use an env var to control whether noteboos are executed
 nb_execution_mode = os.environ.get('NB_EXECUTION_MODE', 'auto')
+# Notebook kernels inherit this process's environment. Without this, napari
+# starts an interactive Qt event loop in the kernel and `viewer.close()` cells
+# hang until the execution timeout. The Makefile sets it too; doing it here
+# covers plain `sphinx-build` and other tools that build the docs.
+os.environ.setdefault('NAPARI_APPLICATION_IPY_INTERACTIVE', '0')
 nb_output_stderr = 'show'
 mermaid_d3_zoom = True
 mermaid_version = '11.4.1'
