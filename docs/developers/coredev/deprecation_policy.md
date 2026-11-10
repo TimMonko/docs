@@ -174,6 +174,60 @@ reviewed by the core team. A deprecation proposal should include:
 - the window, and the usage survey that justifies it,
 - the state (hard or soft)
 
+(napari-deprecation-in-code)=
+
+## Writing a deprecation in code
+
+Prefer the helpers below over hand-written warnings, so that the category and
+message follow this policy and stay searchable.
+
+| What is deprecated | Use |
+| --- | --- |
+| An attribute or property that moved or was renamed | `RenamedProperty` from `napari.utils.migrations` |
+| A property with no replacement | `@property` with `@deprecated(...)` from `typing_extensions` |
+| A renamed function argument | `rename_argument` from `napari.utils.migrations` |
+| Anything else | `warnings.warn(message, category, stacklevel=2)` |
+
+`RenamedProperty` picks the state from its `due_date`: pass a window to make a
+hard deprecation, or leave it out for a soft one. It also writes the message.
+Subscript it with the target's type so code that still uses the old name keeps
+its type hints:
+
+```python
+from napari.utils.migrations import RenamedProperty
+
+
+class ViewerModel(EventedModel):
+    # hard: FutureWarning, "... may be removed as early as 2027-Q2 ..."
+    old_name = RenamedProperty[Camera](
+        new_name='scene.camera', since_version='0.11.0', due_date='2027-Q2'
+    )
+    # soft: DeprecationWarning, "... There are no current plans to remove it ..."
+    older_name = RenamedProperty[Camera](
+        new_name='scene.camera', since_version='0.11.0'
+    )
+```
+
+With `@deprecated`, pass the category that matches the state and write the
+window into the message yourself:
+
+```python
+@property
+@deprecated(
+    'viewer.title is deprecated since 0.11.0 and may be removed as early as '
+    '2027-Q2. Use viewer.window.title instead.',
+    category=FutureWarning,
+    stacklevel=2,
+)
+def title(self) -> str: ...
+```
+
+On napari's `EventedModel`, the event of a deprecated property warns when a
+callback connects to it, with the same message and category. For a
+`RenamedProperty`, that event also forwards the replacement's event. Models
+built on psygnal's `EventedModel`, such as overlays, cannot yet warn on
+connect: a deprecated field's signal is simply removed.
+
 (napari-deprecation-lapsed)=
 
 ## When a window lapses
