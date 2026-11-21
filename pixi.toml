@@ -17,12 +17,16 @@ napari = { path = "../napari", editable = true, extras = ["dev", "pyqt", "docs"]
 [feature.remote-napari.pypi-dependencies]
 napari = { git = "https://github.com/napari/napari.git", branch = "main", extras = ["dev", "pyqt", "docs"] }
 
+[feature.local-theme.pypi-dependencies]
+napari-sphinx-theme = { path = "../napari-sphinx-theme-search", editable = true, extras = ["search"] }
+
 [environments]
 # to run with local napari source code, that is cloned alongside the docs
 # e.g., pixi run -e local-napari html,
 # where `-e local-napari` specifies this environment
 # if no environment is specified, the default is used (remote-napari)
 local-napari = { features = ["local-napari", "base"] }
+local-theme = { features = ["remote-napari", "base", "local-theme"] }
 default = { features = ["remote-napari", "base"] }
 
 [tasks]
